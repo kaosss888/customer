@@ -3,7 +3,7 @@ package com.application.passbook.customer.constant;
 /**
  * <h1>常量定义</h1>
  */
-public class Contants {
+public class Constants {
 
     /** 商户优惠券kafka topic */
     public static final String TEMPLATE_TOPIC = "merchants-template";
