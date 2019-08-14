@@ -1,7 +1,10 @@
 package com.application.passbook.customer.service;
 
 import com.application.passbook.customer.vo.Pass;
+import com.application.passbook.customer.vo.PassInfo;
 import com.application.passbook.customer.vo.Response;
+
+import java.util.List;
 
 /**
  * <h1>获取用户个人优惠券信息</h1>
@@ -14,7 +17,7 @@ public interface IUserPassService {
      * @return {@link Response}
      * @throws Exception
      */
-    Response getUserPassInfo(Long userId) throws Exception;
+    Response<List<PassInfo>> getUserPassInfo(Long userId) throws Exception;
 
     /**
      * <h2>获取用户已经消费的优惠券，即已使用的优惠券功能</h2>
@@ -22,7 +25,7 @@ public interface IUserPassService {
      * @return {@link Response}
      * @throws Exception
      */
-    Response getUserUsedPassInfo(Long userId) throws Exception;
+    Response<List<PassInfo>> getUserUsedPassInfo(Long userId) throws Exception;
 
     /**
      * <h2>获取用户所有的优惠券</h2>
@@ -30,7 +33,7 @@ public interface IUserPassService {
      * @return {@link Response}
      * @throws Exception
      */
-    Response getUserAllPassInfo(Long userId) throws Exception;
+    Response<List<PassInfo>> getUserAllPassInfo(Long userId) throws Exception;
 
     /**
      * <h2>用户使用优惠券</h2>

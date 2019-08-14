@@ -39,17 +39,17 @@ public class UserPassServiceImpl implements IUserPassService {
     private MerchantsDao merchantsDao;
 
     @Override
-    public Response getUserPassInfo(Long userId) throws Exception {
+    public Response<List<PassInfo>> getUserPassInfo(Long userId) throws Exception {
         return getPassInfoByStatus(userId, PassStatus.UNUSED);
     }
 
     @Override
-    public Response getUserUsedPassInfo(Long userId) throws Exception {
+    public Response<List<PassInfo>> getUserUsedPassInfo(Long userId) throws Exception {
         return getPassInfoByStatus(userId, PassStatus.USED);
     }
 
     @Override
-    public Response getUserAllPassInfo(Long userId) throws Exception {
+    public Response<List<PassInfo>> getUserAllPassInfo(Long userId) throws Exception {
         return getPassInfoByStatus(userId, PassStatus.ALL);
     }
 

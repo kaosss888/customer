@@ -1,12 +1,13 @@
 package com.application.passbook.customer.service.impl;
 
 import com.application.passbook.customer.constant.Constants;
+import com.application.passbook.customer.dao.MerchantsDao;
+import com.application.passbook.customer.entity.Merchants;
 import com.application.passbook.customer.mapper.PassTemplateRowMapper;
 import com.application.passbook.customer.service.IInventoryService;
+import com.application.passbook.customer.service.IUserPassService;
 import com.application.passbook.customer.utils.RowKeyGenUtil;
-import com.application.passbook.customer.vo.PassTemplate;
-import com.application.passbook.customer.vo.PassTemplateInfo;
-import com.application.passbook.customer.vo.Response;
+import com.application.passbook.customer.vo.*;
 import com.spring4all.spring.boot.starter.hbase.api.HbaseTemplate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.hbase.client.Scan;
@@ -18,9 +19,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <h1>获取库存信息</h1>
@@ -32,9 +32,27 @@ public class InventoryServiceImpl implements IInventoryService {
     @Autowired
     private HbaseTemplate hbaseTemplate;
 
+    @Autowired
+    private MerchantsDao merchantsDao;
+
+    @Autowired
+    private IUserPassService userPassService;
+
     @Override
-    public Response getInventoryInfo(Long userId) throws Exception {
-        return null;
+    public Response<InventoryResponse> getInventoryInfo(Long userId) throws Exception {
+
+        Response<List<PassInfo>> allUserPass = userPassService.getUserAllPassInfo(userId);
+        List<PassInfo> passInfos = allUserPass.getData();
+
+        List<PassTemplate> excludeObject = passInfos.stream()
+                .map(
+                        PassInfo::getPassTemplate
+                ).collect(Collectors.toList());
+        List<String> excludeIds = new ArrayList<>();
+        excludeObject.forEach(e -> excludeIds.add(RowKeyGenUtil.genPassTemplateRowKey(e)));
+
+        return new Response<>(new InventoryResponse(
+                userId, buildPassTemplateInfo(getAvailablePassTemplate(excludeIds))));
     }
 
     /**
@@ -96,6 +114,25 @@ public class InventoryServiceImpl implements IInventoryService {
      * @return {@link PassTemplateInfo}
      */
     private List<PassTemplateInfo> buildPassTemplateInfo(List<PassTemplate> passTemplates) {
-        return null;
+
+        Map<Integer, Merchants> merchantsMap = new HashMap<>();
+        List<Integer> merchantsIds = passTemplates.stream().map(PassTemplate::getId).collect(Collectors.toList());
+        List<Merchants> merchants = merchantsDao.findByIdIn(merchantsIds);
+        merchants.forEach(m -> merchantsMap.put(m.getId(), m));
+
+        List<PassTemplateInfo> result = new ArrayList<>(passTemplates.size());
+
+        for (PassTemplate item : passTemplates) {
+            Merchants mc = merchantsMap.getOrDefault(item.getId(), null);
+
+            if (null == mc) {
+                log.error("Merchants Error: {}", item.getId());
+                continue;
+            }
+
+            result.add(new PassTemplateInfo(item, mc));
+        }
+
+        return result;
     }
 }
