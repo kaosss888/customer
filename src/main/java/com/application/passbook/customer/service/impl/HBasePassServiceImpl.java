@@ -39,6 +39,7 @@ public class HBasePassServiceImpl implements IHBasePassService {
                     .getTable(TableName.valueOf(Constants.PassTemplateTable.TABLE_NAME))
                     .exists(new Get(Bytes.toBytes(rowKey)))) {
                 log.warn("RowKey {} is already exist!", rowKey);
+                return false;
             }
         } catch (Exception ex) {
             log.error("dropPassTemplateToHBase Error: {}", ex.getMessage());
