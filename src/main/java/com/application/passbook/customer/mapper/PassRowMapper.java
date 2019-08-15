@@ -38,6 +38,8 @@ public class PassRowMapper implements RowMapper<Pass> {
             pass.setConDate(DateUtils.parseDate(conDateStr, patterns));
         }
 
+        pass.setRowKey(Bytes.toString(result.getRow()));
+
         return pass;
     }
 }
